@@ -1,0 +1,28 @@
+<textarea id="input"></textarea>
+
+<button onclick="parse()">parse</button>
+
+<div id="output"></div>
+
+<script>
+    function parseMapping(mapping) {
+        HID_Id = mapping.getElementsByTagName('HID_Id')[0].textContent
+        Scancode = mapping.getElementsByTagName('Scancode')[0].textContent
+        return `<div>${HID_Id} | ${Scancode}</div>`
+    }
+
+    function parse() {
+        input = document.getElementById('input').textContent
+        output = document.getElementById('output')
+        output.innerHTML = ''
+        parser = new DOMParser();
+        doc = parser.parseFromString(input, "text/xml");
+        mappings = doc.getElementsByTagName('Mapping');
+        for (mapping in mappings) {
+            IsHyperShift = mapping.getElementsByTagName('IsHyperShift')[0]
+            if (IsHyperShift && IsHyperShift.textContent == "true") {
+                output.append(parseMapping(mapping))
+            }
+        }
+    }
+</script>

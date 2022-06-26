@@ -2,27 +2,133 @@
 
 <button onclick="parse()">parse</button>
 
-<div id="output"></div>
-
 <script>
+
+    hid = {
+        "0": "COMMAND-OPTION-SHIFT",
+        "4": "A",
+        "5": "B",
+        "6": "C",
+        "7": "D",
+        "8": "E",
+        "9": "F",
+        "10": "G",
+        "11": "H",
+        "12": "I",
+        "13": "J",
+        "14": "K",
+        "15": "L",
+        "16": "M",
+        "17": "N",
+        "18": "O",
+        "19": "P",
+        "20": "Q",
+        "21": "R",
+        "22": "S",
+        "23": "T",
+        "24": "U",
+        "25": "V",
+        "26": "W",
+        "27": "X",
+        "28": "Y",
+        "29": "Z",
+        "30": "!",
+        "31": "@",
+        "32": "#",
+        "33": "$",
+        "34": "%",
+        "35": "^",
+        "36": "&",
+        "37": "*",
+        "38": "(",
+        "39": ")",
+        "40": "ENTER",
+        "41": "ESCAPE",
+        "42": "BACKSPACE",
+        "43": "ALT-TAB",
+        "44": " ",
+        "45": "_",
+        "46": "+",
+        "47": "{",
+        "48": "}",
+        "49": "|",
+        "51": ":",
+        "52": "\"",
+        "53": "~",
+        "54": "<",
+        "55": ">",
+        "56": "?",
+        "57": "CAPSLOCK",
+        "58": "F1",
+        "59": "F2",
+        "60": "F3",
+        "61": "F4",
+        "62": "F5",
+        "63": "F6",
+        "64": "F7",
+        "65": "F8",
+        "66": "F9",
+        "67": "F10",
+        "68": "F11",
+        "69": "F12",
+        "70": "PRINTSCREEN",
+        "71": "SCROLLLOCK",
+        "72": "BREAK",
+        "73": "INSERT",
+        "74": "HOME",
+        "75": "PAGEUP",
+        "76": "DEL",
+        "77": "END",
+        "78": "PAGEDOWN",
+        "79": "RIGHT",
+        "80": "LEFT",
+        "81": "DOWN",
+        "82": "UP",
+        "83": "NUMLOCK",
+        "101": "APP",
+        "NaN": "__comment"
+    }
+
+    output = {}
+
     function parseMapping(mapping) {
         HID_Id = mapping.getElementsByTagName('HID_Id')[0].textContent
-        Scancode = mapping.getElementsByTagName('Scancode')[0].textContent
-        return `<div>${HID_Id} | ${Scancode}</div>`
+        HID_Id_hex = HID_Id.toString(16)
+        key = hid[HID_Id_hex]
+        if (!output[key]) {
+            output[key] = {
+                Scancodes: [],
+                MultimediaAssignments: []
+            }
+        }
+
+        MappingGroup = mapping.getElementsByTagName('MappingGroup')[0].textContent
+        if (MappingGroup == 'Keyboard') {
+            Scancode = mapping.getElementsByTagName('Scancode')[0].textContent
+            output[key].Scancodes.push(Scancode)
+        } else if (MappingGroup == 'Multimedia') {
+            MultimediaAssignment = mapping.getElementsByTagName('MultimediaAssignment')[0].textContent
+            output[key].MultimediaAssignments.push(MultimediaAssignment)
+        } else {
+            console.warn(`unknown MappingGroup: ${MappingGroup}`)
+            return
+        }
     }
 
     function parse() {
-        input = document.getElementById('input').textContent
-        output = document.getElementById('output')
-        output.innerHTML = ''
+        input = document.getElementById('input').value
         parser = new DOMParser();
         doc = parser.parseFromString(input, "text/xml");
         mappings = doc.getElementsByTagName('Mapping');
-        for (mapping in mappings) {
+        output = {}
+
+        for (let i = 0; i < mappings.length; i++) {
+            mapping = mappings.item(i)
             IsHyperShift = mapping.getElementsByTagName('IsHyperShift')[0]
             if (IsHyperShift && IsHyperShift.textContent == "true") {
-                output.append(parseMapping(mapping))
+
             }
+            parseMapping(mapping)
         }
     }
 </script>
